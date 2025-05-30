@@ -1,51 +1,103 @@
-# Vertex AI ML Pipeline Setup & Model Training
+# MLOps Week 2 - DVC Tracking for iris.csv
 
-## 1. Install Vertex AI SDK & Dependencies  
-Installed the Google Cloud Vertex AI Python SDK for managing model deployment and cloud resources:
+This project demonstrates how to use Git and DVC (Data Version Control) to manage and version the `iris.csv` dataset in a reproducible machine learning workflow.
+
+---
+
+## 📁 Project Setup
+
+### 1. Create Project Directory and Virtual Environment
 
 ```bash
-pip3 install --upgrade google-cloud-aiplatform
+mkdir MLOps
+cd MLOps
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-## 2. Configure Google Cloud Environment
-
-Set project ID and region. Created a unique Cloud Storage bucket to store model artifacts and intermediate data:
+### 2. Initialize Git and Clone Repository
 
 ```bash
-PROJECT_ID = "articulate-run-461205-f7"
-LOCATION = "us-central1"
-BUCKET_URI = f"gs://mlops-course-articulate-run-461205-f7-week1"
+git init
+git clone https://github.com/MeghnaB12/iris-week2.git
+cd iris-week2
 ```
 
-## 3. Initialize Vertex AI SDK
-
-Configured the SDK with project, location, and bucket:
+### 3. Install Dependencies and Initialize DVC
 
 ```bash
-from google.cloud import aiplatform
-aiplatform.init(project=PROJECT_ID, location=LOCATION, staging_bucket=BUCKET_URI)
+pip install -r requirements.txt
+pip install dvc
+dvc init
 ```
-## 4. Prepare Model and Deployment Resource Names
 
-Defined names for:
-
-- Model artifact directory in Cloud Storage
-- Artifact repository name
-- Container image name
-- Model display name for Vertex AI console
-
-## 5. Train and Serialize Decision Tree Model
-
-- Loaded Iris dataset (iris.csv)
-- Split data into training and test sets (60/40 split, stratified)
-- Trained a Decision Tree classifier with max depth=3
-- Achieved accuracy: 0.983
-- Serialized model to local artifacts/model.joblib using joblib
-
-## 6. Upload Model Artifacts to Cloud Storage
-
-Uploaded the serialized model to the configured Cloud Storage bucket for use in Vertex AI serving:
+### 4. Track Dataset Only with DVC
 
 ```bash
-gsutil cp artifacts/model.joblib {BUCKET_URI}/{MODEL_ARTIFACT_DIR}/
+dvc add data/iris.csv
+```
+
+### 5. Prevent Git from Tracking the Dataset
+
+```bash
+git rm --cached data/iris.csv
+echo "data/iris.csv" >> .gitignore
+git add .gitignore
+git commit -m "Stop tracking iris.csv in Git and add to .gitignore"
+```
+
+### 6. Commit DVC Setup and Tag Initial Version
+
+```bash
+git add data/iris.csv.dvc .dvc .dvcignore
+git commit -m "Initialize DVC tracking for iris.csv"
+git tag V0
+git push --tags
+```
+
+### 7. Modify and Version the Data
+Simulate Data Update: Remove Last 20 Rows
+
+```bash
+head -n -20 data/iris.csv > temp.csv && mv temp.csv data/iris.csv
+```
+
+### 8. Re-track and Commit Changes with DVC
+
+```bash
+dvc add data/iris.csv
+git add data/iris.csv.dvc
+git commit -m "Update iris.csv by removing last 20 rows"
+git tag V1
+git push --tags
+```
+
+### Compare Versions
+
+9. Save Copies of Each Version
+
+```bash
+# Version V0
+git checkout V0
+dvc checkout
+cp data/iris.csv iris_V0.csv
+
+# Version V1
+git checkout V1
+dvc checkout
+cp data/iris.csv iris_V1.csv
+
+```
+
+### 10. Compare Data Changes
+# Unix file-level diff
+
+```bash
+diff -u iris_V0.csv iris_V1.csv
+```
+
+# DVC-level structured diff
+
+```bash
+dvc diff V0 V1
 ```
