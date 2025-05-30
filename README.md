@@ -30,8 +30,8 @@ aiplatform.init(project=PROJECT_ID, location=LOCATION, staging_bucket=BUCKET_URI
 
 Defined names for:
 
-Model artifact directory in Cloud Storage
-Artifact repository name
+- Model artifact directory in Cloud Storage
+- Artifact repository name
 Container image name
 Model display name for Vertex AI console
 
