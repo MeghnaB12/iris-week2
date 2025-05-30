@@ -4,13 +4,13 @@ This project demonstrates how to use Git and DVC (Data Version Control) to manag
 
 ---
 
-## 📁 Project Setup
+##  Project Setup
 
 ### 1. Create Project Directory and Virtual Environment
 
 ```bash
-mkdir MLOps
-cd MLOps
+mkdir MLOps-week2
+cd MLOps-week2
 python3 -m venv .venv
 source .venv/bin/activate
 ```
@@ -90,13 +90,13 @@ cp data/iris.csv iris_V1.csv
 ```
 
 ### 10. Compare Data Changes
-# Unix file-level diff
+ Unix file-level diff
 
 ```bash
 diff -u iris_V0.csv iris_V1.csv
 ```
 
-# DVC-level structured diff
+DVC-level structured diff
 
 ```bash
 dvc diff V0 V1
