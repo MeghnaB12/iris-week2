@@ -49,5 +49,7 @@ jobs:
           report.md
 
     - name: Post report as PR comment
-      uses: iterative/setup-cml@v2
-    - run: cml comment create report.md
+      run: cml comment create report.md
+      env:
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
