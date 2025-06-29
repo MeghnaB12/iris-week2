@@ -1,0 +1,58 @@
+name: Sanity Test
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Install CML
+      run: npm install -g @dvcorg/cml
+
+    - name: Run training script
+      run: python src/train.py
+
+    - name: Format code
+      run: black .
+
+    - name: Lint code
+      run: flake8 . src tests
+
+    - name: Run unit tests
+      run: pytest
+
+    - name: Generate plot & report
+      run: python src/plot_metrics.py
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: reports
+        path: |
+          metrics.png
+          report.md
+
+    - name: Post report as PR comment
+      run: cml comment create report.md
+      env:
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
